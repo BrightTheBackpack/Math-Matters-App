@@ -6,101 +6,129 @@ import 'Feedbacks.dart';
 import 'HomePage.dart';
 import 'hourcounter.dart';
 
-class bottomNavigation extends StatefulWidget {
-  bottomNavigation({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title State. Fields in a Widget subclass are
-  // always marked "final".
+
+
+class drawer extends StatefulWidget {
+  const drawer({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _bottomNavigationState createState() => _bottomNavigationState();
+  State<drawer> createState() => _drawerState();
 }
 
-class _bottomNavigationState extends State<bottomNavigation> {
-  int _counter = 0;
-  var _selectedIndex = 2;
-  late List<Widget> _widgetoption;
-  @override
-  void initState(){
+class _drawerState extends State<drawer> {
+  int _selectedIndex = 0;
+  String title = "Home Page";
+  List Tlist = ['Home','Attendance Log', 'Student Progress Tracker','Hour Counter','Profile'];
+  static const TextStyle optionStyle =
+  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static  List<Widget> _widgetOptions = [
+    HomePage(title: 'Doordash'),
+    attend(title: 'Confirm'),
+    Feedbacks(title: 'title'),
 
-    super.initState();
+    hourcounter(title: 'Hour Counter'),
+    profile(title: 'title'),
 
-    _widgetoption = [ attend(title:'Attendance'),hourcounter(title: "Hours"), HomePage(title: 'Doordash'),profile(title: 'title'), Feedbacks(title: "Feedback")];//removed hour counter adn feedbacks and attend
+  ];
+
+  void _onItemTapped(int index) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to
-      _counter++;
-    });
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes d would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _selectedIndex = index;
+      title = Tlist[_selectedIndex];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framdgets.
     return Scaffold(
-
+      appBar: AppBar(title: Text(title)),
       body: Center(
-        child: _widgetoption[_selectedIndex],
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-
+        child: _widgetOptions[_selectedIndex],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            // const DrawerHeader(
+            // decoration: BoxDecoration(
+            // color: Colors.blue,
+
+            //),
+            // child: Text('Math Matter Tutor Portal'),
+            //)
+            Padding(
+              padding: EdgeInsets.only(top: 20, left: 20), // Adjust as needed
+              child: Text(
+                'Math Matter Tutor Portal',
+                style: TextStyle(fontSize: 20),
+              ),
             ),
-            label: 'Attendance',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Feedback',
-          ),
 
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Colors.black,
-        onTap: _onItemTapped,
+            Container(width:200, height:200,child: Image.network("https://cloud-52a7ds35h-hack-club-bot.vercel.app/0image.png")),
+
+
+
+            ListTile(
+              title: const Text('Home'),
+              selected: _selectedIndex == 0,
+              onTap: () {
+                // Update the state of the app
+                _onItemTapped(0);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Attendance Log'),
+              selected: _selectedIndex == 1,
+              onTap: () {
+                // Update the state of the app
+                _onItemTapped(1);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Student Content Tracker'),
+              selected: _selectedIndex == 2,
+              onTap: () {
+                // Update the state of the app
+                _onItemTapped(2);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Hour Counter'),
+              selected: _selectedIndex == 3,
+              onTap: () {
+                // Update the state of the app
+                _onItemTapped(3);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Profile'),
+              selected: _selectedIndex == 4,
+              onTap: () {
+                // Update the state of the app
+                _onItemTapped(4);
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
-      // This trailing comma makes auto-formatting nicer .
     );
-  }
-
-  void _onItemTapped(int value) {
-    _selectedIndex = value;
-    setState(() {
-
-    });
   }
 }

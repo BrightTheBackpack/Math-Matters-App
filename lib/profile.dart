@@ -74,7 +74,10 @@ class _profileState extends State<profile> {
     FirebaseDatabase.instance.ref().child("users/" + FirebaseAuth.instance.currentUser!.uid).once().then((value)
     {
       print(FirebaseAuth.instance.currentUser?.uid);
+      print("was able to start call");
       Map list = value.snapshot.value as Map;
+      print("was able to continue call");
+
       print(list);
 
       dropdownValue = list['type'];
@@ -449,7 +452,7 @@ class _profileState extends State<profile> {
               print("sucess");
               Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => bottomNavigation(title: 'Home')),
+              MaterialPageRoute(builder: (context) => drawer(title: 'Home')),
               );
               }).catchError((e){
               print("Failed to save the user information." + e.toString());

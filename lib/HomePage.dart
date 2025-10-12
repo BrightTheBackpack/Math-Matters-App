@@ -98,7 +98,13 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
-                ElevatedButton(onPressed: _launchURL, child: Text('Our Website')),
+                ElevatedButton(onPressed: _launchURL, child: Text('Our Website'),      style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                  ),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),),
 
               ],
             ),
@@ -115,7 +121,15 @@ class _HomePageState extends State<HomePage> {
                     launch(url);
                   }
 
-                }, child: Text('Instagram')),
+                },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                      ),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Instagram')),
 
               ],
             ),
@@ -133,7 +147,15 @@ class _HomePageState extends State<HomePage> {
                     launch(url);
                   }
 
-                }, child: Text('Discord')),
+                },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                      ),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Discord')),
 
               ],
             ),

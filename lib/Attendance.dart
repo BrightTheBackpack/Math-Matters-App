@@ -46,13 +46,26 @@ class _attendState extends State<attend> {
   String type = "";
   List<String> newnames = [];
   List names = [];
+  String textdate = DateTime.now().year.toString() + "-" + DateTime.now().month.toString() + "-" + DateTime.now().day.toString();
+  List<String> addedtutors = [];
+  List<String> tutors =[];
+  List<String> displayedtutors = [];
+  final ref = FirebaseDatabase.instance.ref();
+  var uid = FirebaseAuth.instance.currentUser?.uid;
+  List tutors2 = [];
+
   final List<String> items = [];
+  var name = "";
 
   void initState() {
-    FirebaseDatabase.instance.ref().child("users/" +FirebaseAuth.instance.currentUser!.uid+"/").get().then((value){
-      Map map = value.value as Map;
-      print(value.value.toString());
-      name = map['Name'];
+    FirebaseDatabase.instance.ref().child("users/" +FirebaseAuth.instance.currentUser!.uid).once().then((value){
+      print(value.snapshot.value.toString() + "value");
+      Map map = value.snapshot.value as Map;
+      print(map.toString()+ "name");
+      name = map['Name']; //this still doesn't work :shrug:
+      print(name + "TUTORS NAME");
+    }).catchError((e){
+      print(e);
     });
     FirebaseDatabase.instance.ref().child("Student").once().then((
         result) {
@@ -83,8 +96,30 @@ class _attendState extends State<attend> {
       print(e);
 
     });
+    FirebaseDatabase.instance.ref().child("tutors").once().then((
+        result) {
+      List<String> codelistfromfb = [];
+      Map map = result.snapshot.value as Map;
+      print("tutors");
+
+      map.forEach((key,value) {
+        codelistfromfb.add(key.toString());
+        print(key);
+      });
+
+      tutors2 = codelistfromfb;
+      print(tutors2.toString() + "2");
+      tutors = (tutors2 as List<String>?)!;
+      print(tutors.toString()+"1");
+      ;
+      setState(() {
+      });
+    }).catchError((e) {
+      print(e);
+    });
+
     int number = 0;
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       String wordPair = "";
       while (number < newnames.length) {
         print(newnames[number]);
@@ -115,7 +150,10 @@ class _attendState extends State<attend> {
     {
       Map map = value.snapshot.value as Map;
       type = map['type'];
+      name = map['name'
+      ];
       print(type.toString() + "type");
+      print(name + "aname");
 
 
 
@@ -146,10 +184,10 @@ class _attendState extends State<attend> {
   List<int> delete = [];
   var length = 1;
   String t = "true";
-  var name = "";
   String day = DateTime.now().day.toString().padLeft(2, '0');
 
   String month = DateTime.now().month.toString().padLeft(2, '0');
+  List<String> students = [];
 
   String dropdownValue = 'Student';
   int _counter = 0;
@@ -163,6 +201,7 @@ class _attendState extends State<attend> {
   DateTime selectedDate = DateTime.now();
   double _currentSliderValue = 2;
   int hours = 0;
+  List<TextEditingController> contentracker = [TextEditingController(),TextEditingController(), TextEditingController(),];
 
   @override
   _selectDate(BuildContext context) async {
@@ -170,7 +209,7 @@ class _attendState extends State<attend> {
       context: context,
       initialDate: selectedDate, // Refer step 1
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(2030),
     );
     if (picked != null && picked != selectedDate)
       setState(() {
@@ -187,6 +226,8 @@ class _attendState extends State<attend> {
     }else{
       month = selectedDate.month.toString();
     }
+    textdate = selectedDate.year.toString()+ '-' + month + "-" + day;
+
   }
 
 
@@ -245,73 +286,103 @@ class _attendState extends State<attend> {
             //   ),
             // ),
             Container(
-              margin: EdgeInsets.only(top: 100),
-              child: DropdownSearch(
-                items: items,
-                selectedItem: StudentController.text,
-                enabled: true,
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-
-                    labelText: "Select Student Name",
-                    hintText: "Select Student Name",
+                margin: EdgeInsets.only(top: 100),
+                child: DropdownSearch<String>.multiSelection(
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                      dropdownSearchDecoration: InputDecoration(
+                          hintText: 'Select Student Names'
+                      )
                   ),
-                ),
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,  // Enables the search box within the dropdown menu.
-                  searchFieldProps: TextFieldProps(
-                    decoration: InputDecoration(
-                      hintText: 'Search for a student...',
-
-                    ),
-
+                  items: items,
+                  popupProps: PopupPropsMultiSelection<String>.menu(
+                    showSelectedItems: true,
+                    searchDelay: Duration(seconds: 0),
+                    showSearchBox: true,
                   ),
-                  
-                ),
-
-                onChanged: (value) {
-                  setState(() {
-                    StudentController.text = value.toString();
-                  });
-                },
-                //isExpanded: true,
-              ),
+                  onChanged:(List<String> test){
+                    setState(() {
+                      //print(test);
+                      students = test;
+                      //print(students);
+                      //print(students.length);
+                    });
+                  },
+                  selectedItems: students,
+                )
             ),
 
-          // Container(
-          //   width: 400,
-          //   height: 50,
-          //   margin: EdgeInsets.all(10),
-          //   child: TextField(
-          //     controller: StudentController,
-          //     obscureText: false,
-          //     decoration: InputDecoration(
-          //       border: OutlineInputBorder(),
-          //       labelText: 'Student Name',
-          //     ),
-          //   ),
-          // ),
-          Container(
-            width: 400,
-
-            margin: EdgeInsets.all(10),
-            child: TextFormField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                filled: true,
-                hintText: 'Write what you taught today here',
-                labelText: 'Student Content Tracker',
-              ),
-              controller:contenttracker ,
-              maxLines: 6,
+            Container(
+                margin: EdgeInsets.only(top: 100),
+                child: DropdownSearch<String>.multiSelection(
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                      dropdownSearchDecoration: InputDecoration(
+                          hintText: 'Additional Tutors'
+                      )
+                  ),
+                  items: tutors,
+                  popupProps: PopupPropsMultiSelection<String>.menu(
+                    showSelectedItems: true,
+                    showSearchBox: true,
+                    searchDelay: Duration(seconds: 0),
+                    disabledItemFn: (String s) => s.startsWith(name),
+                  ),
+                  onChanged:(List<String> test){
+                    setState(() {
+                      //print(test);
+                      addedtutors = test;
+                      addedtutors.add(name);
+                      //print(students);
+                      //print(students.length);
+                    });
+                  },
+                  selectedItems: displayedtutors,
+                )
             ),
-          ),
-          Container(width:400, height:50,margin: EdgeInsets.all(10),child: ElevatedButton(onPressed: ()=> _selectDate(context), child: Text("Select Date"))),
+
+            //Progress Tracker
+            Container(
+              height: students.length *100,
+              child: ListView.builder(
+                  itemCount: students.length,
+                  itemBuilder: (BuildContext context, int index){
+                    return Container(
+                      width: 400,
+                      height: 100,
+
+                      margin: EdgeInsets.all(10),
+                      child: TextFormField(
+                        decoration:  InputDecoration(
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          hintText: 'Write what you taught today here',
+                          labelText: 'Student Content Tracker for ' + students[index],
+                        ),
+                        controller:contentracker[index] ,
+                        maxLines: 6,
+                      ),
+                    );
+                  }
+              ),
+            ),
+          Container(width:400, height:50,margin: EdgeInsets.all(10),child: TextButton(     style: TextButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Adjust for squareness
+            ),
+            foregroundColor: Colors.blue,
+          ),onPressed: ()=> _selectDate(context), child: Text(textdate.toString()))),
 
             Container(
               width:400, height:50,
                 margin: EdgeInsets.all(10),
-              child: ElevatedButton(onPressed: (){
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                    ),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: (){
 
                 FirebaseDatabase.instance.ref().child("AttendanceLog/" +  counter.toString()+"/Info").set(
                     {
@@ -335,7 +406,7 @@ class _attendState extends State<attend> {
                     print('its a tutor!');
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => bottomNavigation(title: 'Home')),
+                      MaterialPageRoute(builder: (context) => drawer(title: 'Home')),
                     );
 
                   }
@@ -367,7 +438,15 @@ class _attendState extends State<attend> {
 
               }, child: Text('Save')),
             ),
-            Container( width:400, height:50, margin: EdgeInsets.all(10), child: ElevatedButton(onPressed: (){
+            Container( width:400, height:50, margin: EdgeInsets.all(10), child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                ),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: (){
 
               print(type);
               if(type.contains('irect')){
@@ -405,7 +484,7 @@ class _attendState extends State<attend> {
 
             },
 
-              child: Text('Verify Hours'),),),
+              child: Text('Verify Hours(Co-Director only)'),),),
           Container(
             height: (codeList.length*50)+5,
             width: 800,

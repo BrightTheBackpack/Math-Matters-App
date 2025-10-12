@@ -88,7 +88,7 @@ class _hourcounterState extends State<hourcounter> {
       context: context,
       initialDate: selectedDate, // Refer step 1
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(2030),
     );
     if (picked != null && picked != selectedDate)
       setState(() {
@@ -102,7 +102,7 @@ class _hourcounterState extends State<hourcounter> {
       context: context,
       initialDate: selectedDate2, // Refer step 1
       firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(2030),
     );
     if (picked != null && picked != selectedDate2)
       setState(() {

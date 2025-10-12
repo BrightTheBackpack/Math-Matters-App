@@ -4,6 +4,8 @@ import 'package:math_matters/HomePage.dart';
 import 'package:math_matters/Signup.dart';
 import 'package:math_matters/StudentNavigation.dart';
 import 'package:math_matters/directorbottom.dart';
+import 'package:math_matters/sign_in_with_google.dart';
+
 import 'HomePage.dart';
 import 'BottomNavigation.dart';
 import 'Signup.dart';
@@ -65,7 +67,7 @@ class _LoginState extends State<Login> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => bottomNavigation(title: 'Homepage')),
+          builder: (context) => drawer(title: 'Homepage')),
     );
   }
   void _signupbutton() {
@@ -164,7 +166,13 @@ class _LoginState extends State<Login> {
               height: 50,
               child: ElevatedButton(
 
-
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                  ),
+                  backgroundColor:Colors.blue,
+                  foregroundColor: Colors.white
+                ),
                 onPressed: (){
                   print("tapped");
                   lusernameController.text.isEmpty ? _validate = true : _validate = false;
@@ -235,7 +243,7 @@ class _LoginState extends State<Login> {
                             context,
 
                             MaterialPageRoute(builder: (context) =>
-                                bottomNavigation(title: 'Login')),
+                                drawer(title: 'HomePage')),
                           );
                         }
                         if(Typetest.contains('tud') == true){
@@ -323,11 +331,16 @@ class _LoginState extends State<Login> {
                 style: ElevatedButton.styleFrom(
 
                     backgroundColor: color1,
+                    foregroundColor: Colors.white, // This ensures text color is white
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                    ),
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
                     textStyle: TextStyle(
-                        color: color2,
+                        color: Colors.white,
                         fontSize: 14,
-                        fontWeight: FontWeight.bold)),
+                        )),
 
               onPressed: (){
                 lusernameController.text.isEmpty ? _validate = true : _validate = false;
@@ -351,7 +364,69 @@ class _LoginState extends State<Login> {
 
               },
 
-             child: Text(resetpass)),
+             child: Text(resetpass, style: TextStyle(color: color2))),
+            const SizedBox(height:30 ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                ),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+                onPressed:() async {
+              User? user = await Authentication.signInWithGoogle(context: context);
+              if(user != null){
+                print('signed in');
+                String Typetest = "";
+                var type = user!.uid;
+                print('here');
+                FirebaseDatabase.instance.ref().child("users/" + type + "/type").once().then((value)
+                {
+                  Typetest = value.snapshot.value.toString();
+                  print(value.toString());
+                  print("hi");
+                  print(Typetest);
+                }
+                );
+                print('itreachedhere');
+                Future.delayed(const Duration(milliseconds: 1000), (){
+                  print('andnowhere');
+                  if(Typetest == "null"){
+                    print("null");
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          profile(title: 'Login')),
+                    );}
+                  if(Typetest.contains('ut') == true){
+                    print("succsesss");
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>
+                            drawer(title: 'HomePage')),
+                      );
+
+                  }
+                  if(Typetest.contains('tud') == true){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          StudentNav(title: 'Login')),
+                    );
+                  }
+                  if(Typetest.contains('irector')){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>
+                          directorNavigation(title: 'Login')),
+                    );
+                  }
+                }
+                );
+              }
+            } , child: Text("Sign in with Google")),
+
             const SizedBox(height: 30),
 
 
@@ -361,5 +436,21 @@ class _LoginState extends State<Login> {
       ),
 
     );
+  }
+}
+class Authentication {
+  static Future<User?> signInWithGoogle({required BuildContext context}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
+
+      GoogleAuthProvider authProvider = GoogleAuthProvider();
+      try {
+        final UserCredential userCredential = await auth.signInWithPopup(authProvider);
+        user = userCredential.user;
+      } catch (e) {
+        print(e);
+      }
+
+    return user;
   }
 }

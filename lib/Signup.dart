@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 import 'login page.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:math_matters/HomePage.dart';
+import 'package:math_matters/Signup.dart';
+import 'package:math_matters/StudentNavigation.dart';
+import 'package:math_matters/directorbottom.dart';
+import 'package:math_matters/sign_in_with_google.dart';
+import  'profile.dart';
+import 'BottomNavigation.dart';
+
 class Signup extends StatefulWidget {
   Signup({Key? key, required this.title}) : super(key: key);
 
@@ -92,6 +100,7 @@ class _SignupState extends State<Signup> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
 
 
@@ -114,8 +123,8 @@ class _SignupState extends State<Signup> {
                Column(
                 children: [
                   Container(
+
                     height: 50,
-                    width: 400,
                     margin: EdgeInsets.all(10),
                     child:  TextField(
                       scrollPadding: EdgeInsets.only(bottom:40),
@@ -130,7 +139,6 @@ class _SignupState extends State<Signup> {
                   ),
                   Container(
                     height: 50,
-                    width: 400,
                     margin: EdgeInsets.all(10),
                     child:  TextField(
                       scrollPadding: EdgeInsets.only(bottom:40),
@@ -145,7 +153,6 @@ class _SignupState extends State<Signup> {
                   ),
                   Container(
                     height: 50,
-                    width: 400,
 
                     margin: EdgeInsets.all(10),
                     child:  TextField(
@@ -164,7 +171,6 @@ class _SignupState extends State<Signup> {
 
                           Container(
                             height: 50,
-                            width: 400,
 
                             margin: EdgeInsets.only(left: 10, right: 10, top: 10, bottom:0),
                             child: TextField(
@@ -202,6 +208,13 @@ class _SignupState extends State<Signup> {
                 height: 50,
                 margin: EdgeInsets.only(bottom:40),
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                    ),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: (){
                     usernameController.text.isEmpty ? _validate = true : _validate = false;
                     usernameController.text.isEmpty ? test = "This field is required" : test = "";
@@ -289,6 +302,70 @@ class _SignupState extends State<Signup> {
 
 
               ),
+            Container(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Adjust for squareness
+                  ),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Sign up with Google'),
+                onPressed: () async {
+                  User? user = await Authentication.signInWithGoogle(context: context);
+                  if(user != null){
+                    print('signed in');
+                    String Typetest = "";
+                    var type = user!.uid;
+                    print('here');
+                    FirebaseDatabase.instance.ref().child("users/" + type + "/type").once().then((value)
+                    {
+                      Typetest = value.snapshot.value.toString();
+                      print(value.toString());
+                      print("hi");
+                      print(Typetest);
+                    }
+                    );
+                    print('itreachedhere');
+                    Future.delayed(const Duration(milliseconds: 1000), (){
+                      print('andnowhere');
+                      if(Typetest == "null"){
+                        print("null");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              profile(title: 'Login')),
+                        );}
+                      if(Typetest.contains('ut') == true){
+                        print("succsesss");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                drawer(title: 'HomePage')),
+                          );
+
+                      }
+                      if(Typetest.contains('tud') == true){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              StudentNav(title: 'Login')),
+                        );
+                      }
+                      if(Typetest.contains('irector')){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              directorNavigation(title: 'Login')),
+                        );
+                      }
+                    }
+                    );
+                  }
+                },
+              ),
+            ),
             Padding(
                 padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom)
             )
@@ -305,3 +382,21 @@ class _SignupState extends State<Signup> {
     );
   }
 }
+
+
+class Authentication {
+  static Future<User?> signInWithGoogle({required BuildContext context}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
+      GoogleAuthProvider authProvider = GoogleAuthProvider();
+      try {
+        final UserCredential userCredential = await auth.signInWithPopup(authProvider);
+        user = userCredential.user;
+      } catch (e) {
+        print(e);
+      }
+
+    return user;
+  }
+}
+
